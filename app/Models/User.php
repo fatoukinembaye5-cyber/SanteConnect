@@ -14,6 +14,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'utilisateurs';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -22,6 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -35,15 +43,45 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * Get the patient profile associated with the user.
+     */
+    public function patient()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasOne(Patient::class, 'utilisateur_id');
+    }
+
+    /**
+     * Get the doctor profile associated with the user.
+     */
+    public function medecin()
+    {
+        return $this->hasOne(Medecin::class, 'utilisateur_id');
+    }
+
+    /**
+     * Get the administrator profile associated with the user.
+     */
+    public function administrateur()
+    {
+        return $this->hasOne(Administrateur::class, 'utilisateur_id');
+    }
+
+    /**
+     * Get the notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'utilisateur_id');
     }
 }
+
