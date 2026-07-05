@@ -121,7 +121,7 @@ export default function LoginPage() {
             />
 
             <div style={styles.forgotRow}>
-              <span style={styles.link}>Mot de passe oublié ?</span>
+              <a href="/forgot-password" style={styles.link}>Mot de passe oublié ?</a>
             </div>
 
             {error && (
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
           <p style={styles.bottomText}>
             Nouveau patient ?{' '}
-            <span style={styles.link}>Créer un compte</span>
+            <a href="/register/patient" style={styles.link}>Créer un compte</a>
           </p>
         </div>
       </div>
@@ -252,7 +252,13 @@ const styles = {
     outline: 'none',
   },
   forgotRow: { textAlign: 'right', marginBottom: '16px', marginTop: '-8px' },
-  link: { color: GREEN, fontSize: '13px', fontWeight: 500, cursor: 'pointer' },
+  link: {
+    color: GREEN,
+    fontSize: '13px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    textDecoration: 'none',
+  },
   submitBtn: {
     width: '100%',
     padding: '11px',
