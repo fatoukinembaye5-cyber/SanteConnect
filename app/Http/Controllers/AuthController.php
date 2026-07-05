@@ -16,51 +16,42 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle authentication attempt.
+     * Handle login attempt.
      */
     public function login(Request $request)
     {
-        // 1. Validate inputs
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ]);
 
-        // 2. Attempt authentication
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            // 3. Redirect user based on their role
-            $user = Auth::user();
+            $role = Auth::user()->role;
+            $redirect = match($role) {
+                'patient' => route('patient.dashboard'),
+                'medecin' => route('medecin.dashboard'),
+                'super_admin' => route('admin.dashboard'),
+                default => '/',
+            };
 
-            if ($user->role === 'patient') {
-                return redirect()->intended('/patient/dashboard');
-            } elseif ($user->role === 'medecin') {
-                return redirect()->intended('/medecin/dashboard');
-            } elseif ($user->role === 'super_admin') {
-                return redirect()->intended('/admin/dashboard');
-            }
-
-            // Fallback
-            return redirect('/');
+            return response()->json(['redirect' => $redirect]);
         }
 
-        // 4. Return error if login failed
-        return back()->withErrors([
-            'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
-        ])->onlyInput('email');
+        return response()->json([
+            'message' => 'Email ou mot de passe incorrect.',
+        ], 401);
     }
 
     /**
-     * Log the user out.
+     * Handle logout.
      */
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect('/login')->with('success', 'Vous avez été déconnecté.');
+        return redirect('/login');
     }
 }
