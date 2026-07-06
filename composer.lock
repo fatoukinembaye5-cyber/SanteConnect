@@ -1282,16 +1282,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.21",
+            "version": "v0.3.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "7753c65c281c2550c7c183f14e18062073b7d821"
+                "reference": "6d53c826dfd33ec5f4ac91f816ff327727c7988b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/7753c65c281c2550c7c183f14e18062073b7d821",
-                "reference": "7753c65c281c2550c7c183f14e18062073b7d821",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/6d53c826dfd33ec5f4ac91f816ff327727c7988b",
+                "reference": "6d53c826dfd33ec5f4ac91f816ff327727c7988b",
                 "shasum": ""
             },
             "require": {
@@ -1335,9 +1335,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.21"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.20"
             },
-            "time": "2026-06-26T00:11:25+00:00"
+            "time": "2026-06-24T19:16:38+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -1657,16 +1657,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.35.1",
+            "version": "3.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "f23af6c5aafd958a7593029a271d77baf5ed793c"
+                "reference": "d0a405f03d980461e4b6e08cfed2c162650f9f6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/f23af6c5aafd958a7593029a271d77baf5ed793c",
-                "reference": "f23af6c5aafd958a7593029a271d77baf5ed793c",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/d0a405f03d980461e4b6e08cfed2c162650f9f6b",
+                "reference": "d0a405f03d980461e4b6e08cfed2c162650f9f6b",
                 "shasum": ""
             },
             "require": {
@@ -1734,9 +1734,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.35.1"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.35.0"
             },
-            "time": "2026-06-25T06:52:23+00:00"
+            "time": "2026-06-22T20:12:06+00:00"
         },
         {
             "name": "league/flysystem-local",
@@ -6277,16 +6277,16 @@
         },
         {
             "name": "laravel/mcp",
-            "version": "v0.8.2",
+            "version": "v0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "0c32bf369c6432cab21458f9f4479da33a49ba37"
+                "reference": "fdc39c9e21048801508765cb4d72bd9e8501b51f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/0c32bf369c6432cab21458f9f4479da33a49ba37",
-                "reference": "0c32bf369c6432cab21458f9f4479da33a49ba37",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/fdc39c9e21048801508765cb4d72bd9e8501b51f",
+                "reference": "fdc39c9e21048801508765cb4d72bd9e8501b51f",
                 "shasum": ""
             },
             "require": {
@@ -6347,7 +6347,7 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-06-25T14:00:45+00:00"
+            "time": "2026-06-11T13:59:49+00:00"
         },
         {
             "name": "laravel/pail",
