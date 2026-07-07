@@ -6,35 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('medecins', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
 
-            $table->string('nom');
-            $table->string('prenom');
-            $table->string('email')->unique();
-            $table->string('telephone')->nullable();
+            $table->foreignId('user_id')
+                  ->constrained()
+                  ->onDelete('cascade');
 
-            $table->foreignId('specialite_id')
-                ->constrained('specialites')
-                ->cascadeOnDelete();
+            $table->string('titre');
+            $table->text('message');
 
-            $table->string('numero_ordre')->unique()->nullable();
-            $table->string('adresse')->nullable();
+            $table->boolean('lu')->default(false);
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('medecins');
+        Schema::dropIfExists('notifications');
     }
 };
