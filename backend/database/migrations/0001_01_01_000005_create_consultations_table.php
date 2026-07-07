@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('patient_id')
-                  ->constrained('users')
+                  ->constrained('patients')
                   ->cascadeOnDelete();
 
             $table->foreignId('medecin_id')
-                  ->constrained('users')
+                  ->constrained('medecins')
                   ->cascadeOnDelete();
 
             $table->dateTime('date');

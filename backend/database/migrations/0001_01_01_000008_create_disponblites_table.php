@@ -11,22 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ordonnances', function (Blueprint $table) {
+        Schema::create('disponibilites', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('patient_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
-
             $table->foreignId('medecin_id')
-                ->constrained('users')
+                ->constrained('medecins')
                 ->cascadeOnDelete();
-
-            $table->text('description');
-
-            $table->text('medicaments');
 
             $table->date('date');
+
+            $table->time('heure_debut');
+
+            $table->time('heure_fin');
+
+            $table->boolean('disponible')->default(true);
 
             $table->timestamps();
         });
@@ -37,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ordonnances');
+        Schema::dropIfExists('disponibles');
     }
 };
