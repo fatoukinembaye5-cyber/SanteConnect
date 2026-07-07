@@ -1,13 +1,12 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-import ListeRendezVous from "./RendezVous/ListeRendezVous";
-
+// App.jsx
+import React from 'react';
+import AppRouter from './routes/AppRouter';
+import './index.css'; // Assure-toi que Tailwind est bien importé ici
 
 function App() {
-  return <ListeRendezVous />;
+  return (
+    <AppRouter />
+  );
 }
 
-export default App
+export default App;
