@@ -1,26 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
 const Login = () => {
   const [role, setRole] = useState('Administrateur');
   const [email, setEmail] = useState('admin@santeconnect.sn');
   const [password, setPassword] = useState('thies2024');
+  const [error, setError] = useState('');
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     try {
-      const response = await authService.login(email, password, role);
-      if (response && response.token) {
-        localStorage.setItem('token', response.token);
+      const response = await authService.login(email, password);
+      if (response && response.access_token) {
+        localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('user_role', role);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/rendezvous/dashboard');
+      } else {
+        setError('Impossible de récupérer le jeton d’authentification.');
       }
-      navigate('/rendezvous/dashboard');
     } catch (err) {
-      navigate('/rendezvous/dashboard');
+      setError(err.message || 'Échec de connexion. Vérifiez vos identifiants.');
     }
   };
 
@@ -95,6 +100,11 @@ const Login = () => {
             </div>
 
             {/* Formulaire */}
+            {error && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">
+                {error}
+              </div>
+            )}
             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
@@ -139,9 +149,9 @@ const Login = () => {
 
             <p className="text-center text-xs text-gray-400 mt-6">
               Nouveau patient ?{' '}
-              <a href="/register" className="font-bold text-[#003B2B] hover:underline">
+              <Link to="/register" className="font-bold text-[#003B2B] hover:underline">
                 Créer un compte
-              </a>
+              </Link>
             </p>
 
           </div>

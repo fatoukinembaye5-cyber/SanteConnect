@@ -28,6 +28,11 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
+  const RequireAuth = ({ children }) => {
+    const token = localStorage.getItem('access_token');
+    return token ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <Router>
       <Routes>
@@ -39,16 +44,44 @@ const AppRouter = () => {
           <Route path="/register" element={<Register />} />
 
           {/* 3. Espace Patient (avec Layout et Dashboard) */}
-          <Route path="/patient" element={<PatientLayout />}>
+          <Route
+            path="/patient"
+            element={
+              <RequireAuth>
+                <PatientLayout />
+              </RequireAuth>
+            }
+          >
             <Route path="dashboard" element={<PatientDashboard />} />
           </Route>
 
           {/* 4. Autres Espaces Privés */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/medecin" element={<MedecinDashboard />} />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth>
+                <AdminDashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/medecin"
+            element={
+              <RequireAuth>
+                <MedecinDashboard />
+              </RequireAuth>
+            }
+          />
 
           {/* 5. Routes Rendez-vous */}
-          <Route path="/rendezvous" element={<RendezVousLayout />}>
+          <Route
+            path="/rendezvous"
+            element={
+              <RequireAuth>
+                <RendezVousLayout />
+              </RequireAuth>
+            }
+          >
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<RendezVousDashboard />} />
             <Route path="liste" element={<ListeRendezVous />} />

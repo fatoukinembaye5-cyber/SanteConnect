@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -27,7 +28,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = Str::random(60);
 
         return response()->json([
             'message' => 'Utilisateur créé avec succès',
@@ -53,7 +54,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = Str::random(60);
 
         return response()->json([
             'message' => 'Connexion réussie',
@@ -66,7 +67,10 @@ class AuthController extends Controller
     // LOGOUT
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        // If Sanctum is not installed, tokens() may not exist; ignore gracefully.
+        if (method_exists($request->user(), 'tokens')) {
+            $request->user()->tokens()->delete();
+        }
 
         return response()->json([
             'message' => 'Déconnexion réussie'

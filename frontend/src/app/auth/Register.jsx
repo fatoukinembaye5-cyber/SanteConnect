@@ -38,8 +38,11 @@ const Register = () => {
     }
 
     try {
-      const response = await authService.register(formData);
-      setSuccess(response.message);
+      const response = await authService.register({
+        ...formData,
+        role: 'Patient',
+      });
+      setSuccess(response.message || 'Inscription réussie.');
       
       // Redirection vers la page de login après 2 secondes
       setTimeout(() => {

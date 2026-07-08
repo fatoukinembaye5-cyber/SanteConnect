@@ -1,62 +1,39 @@
 import { apiFetch } from './api';
 
-export async function loginRequest(email, password) {
-  return apiFetch('/api/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password })
-  });
-}
-
-export async function registerRequest(name, email, password, role = 'Patient') {
-  return apiFetch('/api/register', {
-    method: 'POST',
-    body: JSON.stringify({ name, email, password, role })
-  });
-}
-
-export async function meRequest() {
-  return apiFetch('/api/me', { method: 'GET' });
-}
-
-export async function logoutRequest() {
-  return apiFetch('/api/logout', { method: 'POST' });
-}
-// services/authService.js
-
 export const authService = {
-  login: async (email, password, role) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: 'demo-token',
-          user: {
-            email,
-            role,
-          },
-        });
-      }, 300);
+  login: async (email, password) => {
+    return apiFetch('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
     });
   },
 
-  // Nouvelle fonction pour l'inscription
   register: async (userData) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (userData.email && userData.password && userData.nom) {
-          resolve({
-            success: true,
-            message: "Compte créé avec succès !",
-            user: userData
-          });
-        } else {
-          reject(new Error("Veuillez remplir tous les champs obligatoires."));
-        }
-      }, 1000);
+    const payload = {
+      name: `${userData.prenom} ${userData.nom}`.trim(),
+      email: userData.email,
+      password: userData.password,
+      role: userData.role || 'Patient',
+    };
+
+    return apiFetch('/api/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_role");
+  me: async () => {
+    return apiFetch('/api/me', { method: 'GET' });
+  },
+
+  logout: async () => {
+    try {
+      await apiFetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+      // ignore logout API errors and clear local storage anyway
+    }
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('user');
   }
 };

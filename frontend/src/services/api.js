@@ -1,7 +1,7 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const API_URL = import.meta.env.VITE_API_URL || '';
 
 export async function apiFetch(path, opts = {}) {
-  const url = `${API_URL}${path}`;
+  const url = API_URL ? `${API_URL}${path}` : path;
   const headers = opts.headers || {};
   const token = localStorage.getItem('access_token');
   if (token) headers['Authorization'] = `Bearer ${token}`;
