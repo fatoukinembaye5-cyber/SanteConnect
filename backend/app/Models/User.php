@@ -19,6 +19,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'name',
         'nom',
         'prenom',
         'email',
@@ -26,6 +27,30 @@ class User extends Authenticatable
         'role',
         'telephone',
     ];
+
+    /**
+     * Accessor for the full name when controllers submit a single name field.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim(($this->prenom ?? '') . ' ' . ($this->nom ?? ''));
+    }
+
+    /**
+     * Mutator to support controllers that pass a single name field.
+     */
+    public function setNameAttribute(string $value): void
+    {
+        $parts = preg_split('/\s+/', trim($value));
+        if (count($parts) <= 1) {
+            $this->attributes['prenom'] = $parts[0] ?? '';
+            $this->attributes['nom'] = '';
+            return;
+        }
+
+        $this->attributes['prenom'] = array_shift($parts);
+        $this->attributes['nom'] = implode(' ', $parts);
+    }
 
     /**
      * The attributes that should be hidden for serialization.

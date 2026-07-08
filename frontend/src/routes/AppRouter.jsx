@@ -6,6 +6,11 @@ import Login from '../app/auth/Login';
 import Register from '../app/auth/Register';
 
 const AppRouter = () => {
+  const RequireAuth = ({ children }) => {
+    const token = localStorage.getItem('access_token');
+    return token ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <Router>
       <Routes>

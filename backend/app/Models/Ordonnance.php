@@ -10,13 +10,11 @@ class Ordonnance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'consultation_id',
         'patient_id',
         'medecin_id',
+        'description',
         'medicaments',
-        'posologie',
-        'instructions',
-        'date_ordonnance'
+        'date'
     ];
 
     public function consultation()

@@ -1,15 +1,36 @@
-import { useState } from "react";
-import "./rendezvous.css";
+import { useEffect, useState } from 'react';
+import { createRendezvous, fetchPatients, fetchMedecins } from '../services/rendezvousService';
+import './rendezvous.css';
 
 function AjouterRendezVous() {
   const [formData, setFormData] = useState({
-    patient: "",
-    medecin: "Dr. Coumba Sene — Généraliste",
-    consultation: "Consultation générale",
-    date: "",
-    heure: "09:30",
-    notes: "",
+    patient_id: '',
+    medecin_id: '',
+    motif: 'Consultation générale',
+    date_rendezvous: '',
+    heure_rendezvous: '09:30',
+    notes: '',
   });
+  const [patients, setPatients] = useState([]);
+  const [medecins, setMedecins] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const [patientsData, medecinsData] = await Promise.all([
+          fetchPatients(),
+          fetchMedecins(),
+        ]);
+        setPatients(patientsData);
+        setMedecins(medecinsData);
+      } catch (err) {
+        setMessage('Impossible de charger les patients ou médecins.');
+      }
+    };
+    loadOptions();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -18,21 +39,45 @@ function AjouterRendezVous() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    alert("Rendez-vous enregistré !");
+    setLoading(true);
+    setMessage('');
+
+    try {
+      await createRendezvous({
+        patient_id: formData.patient_id,
+        medecin_id: formData.medecin_id,
+        date_rendezvous: formData.date_rendezvous,
+        heure_rendezvous: formData.heure_rendezvous,
+        motif: formData.motif,
+      });
+      setMessage('Rendez-vous créé avec succès.');
+      setFormData({
+        patient_id: '',
+        medecin_id: '',
+        motif: 'Consultation générale',
+        date_rendezvous: '',
+        heure_rendezvous: '09:30',
+        notes: '',
+      });
+    } catch (err) {
+      setMessage(err.message || 'Erreur lors de la création du rendez-vous.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
     setFormData({
-      patient: "",
-      medecin: "Dr. Coumba Sene — Généraliste",
-      consultation: "Consultation générale",
-      date: "",
-      heure: "09:30",
-      notes: "",
+      patient_id: '',
+      medecin_id: '',
+      motif: 'Consultation générale',
+      date_rendezvous: '',
+      heure_rendezvous: '09:30',
+      notes: '',
     });
+    setMessage('');
   };
 
   return (
@@ -40,30 +85,44 @@ function AjouterRendezVous() {
       <h2>Nouveau rendez-vous</h2>
 
       <form onSubmit={handleSubmit}>
-        <label>Patient</label>
-        <input
-          type="text"
-          name="patient"
-          placeholder="Nom, prénom ou ID..."
-          value={formData.patient}
-          onChange={handleChange}
-        />
+        {message ? (
+          <div className="message-card">{message}</div>
+        ) : null}
 
-        <label>Médecin & Spécialité</label>
+        <label>Patient</label>
         <select
-          name="medecin"
-          value={formData.medecin}
+          name="patient_id"
+          value={formData.patient_id}
           onChange={handleChange}
+          required
         >
-          <option>Dr. Coumba Sene — Généraliste</option>
-          <option>Dr. Mamadou Fall — Pédiatre</option>
-          <option>Dr. Fatou Ndiaye — Gynécologue</option>
+          <option value="">Sélectionner un patient</option>
+          {patients.map((patient) => (
+            <option key={patient.id} value={patient.id}>
+              {patient.prenom} {patient.nom} — {patient.email}
+            </option>
+          ))}
         </select>
 
-        <label>Type de consultation</label>
+        <label>Médecin</label>
         <select
-          name="consultation"
-          value={formData.consultation}
+          name="medecin_id"
+          value={formData.medecin_id}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Sélectionner un médecin</option>
+          {medecins.map((medecin) => (
+            <option key={medecin.id} value={medecin.id}>
+              {medecin.prenom} {medecin.nom} — {medecin.email}
+            </option>
+          ))}
+        </select>
+
+        <label>Motif de consultation</label>
+        <select
+          name="motif"
+          value={formData.motif}
           onChange={handleChange}
         >
           <option>Consultation générale</option>
@@ -116,9 +175,9 @@ function AjouterRendezVous() {
           onChange={handleChange}
         />
 
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-          <button type="submit" className="btn btn-primary">
-            Confirmer
+        <div className="submit-row">
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? 'Enregistrement...' : 'Confirmer'}
           </button>
           <button type="button" className="btn btn-secondary" onClick={handleReset}>
             Annuler
