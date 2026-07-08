@@ -1,3 +1,4 @@
+import './index.css'; // ou le chemin vers ton fichier CSS s'il est dans un autre dossier
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
