@@ -1,0 +1,22 @@
+
+  Dropping all tables ................................................ 9s DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table ........................................... 2s DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table ............................... 2s DONE
+  0001_01_01_000001_create_cache_table ............................... 3s DONE
+  0001_01_01_000001_create_patients_table ............................ 1s DONE
+  0001_01_01_000002_create_jobs_table ................................ 3s DONE
+  0001_01_01_000002_create_specialites_table ......................... 1s DONE
+  0001_01_01_000003_create_medecins_table ............................ 4s DONE
+  0001_01_01_000004_create_dossier_medicaux_table .................... 3s DONE
+  0001_01_01_000005_create_consultations_table ...................... 15s DONE
+  0001_01_01_000006_create_ordonnance_table ......................... 11s DONE
+  0001_01_01_000007_create_rendez_vous_table ........................ 18s DONE
+  0001_01_01_000008_create_disponblites_table ........................ 8s DONE
+  0001_01_01_000009_create_notifications_table ....................... 6s DONE
+

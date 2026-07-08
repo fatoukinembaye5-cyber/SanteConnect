@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\RendezVous;
+use App\Models\Rendezvous;
 
-class RendezVousController extends Controller
+class RendezvousController extends Controller
 {
     //  Liste des rendez-vous
     public function index()
     {
-        $rendezvous = RendezVous::with(['patient', 'medecin'])
+        $rendezvous = Rendezvous::with(['patient', 'medecin'])
             ->latest()
             ->get();
 
@@ -29,7 +29,7 @@ class RendezVousController extends Controller
             'motif' => 'required|string',
         ]);
 
-        $rdv = RendezVous::create([
+        $rdv = Rendezvous::create([
             'patient_id' => $request->patient_id,
             'medecin_id' => $request->medecin_id,
             'date' => $request->date,
@@ -47,7 +47,7 @@ class RendezVousController extends Controller
     //  Voir un rendez-vous
     public function show($id)
     {
-        $rdv = RendezVous::with(['patient', 'medecin'])->findOrFail($id);
+        $rdv = Rendezvous::with(['patient', 'medecin'])->findOrFail($id);
 
         return response()->json($rdv);
     }
@@ -55,7 +55,7 @@ class RendezVousController extends Controller
     //  Modifier un rendez-vous (statut ou infos)
     public function update(Request $request, $id)
     {
-        $rdv = RendezVous::findOrFail($id);
+        $rdv = Rendezvous::findOrFail($id);
 
         $rdv->update($request->only([
             'date',
@@ -84,7 +84,7 @@ class RendezVousController extends Controller
     //  Rendez-vous du patient connecté
     public function mesRendezVous(Request $request)
     {
-        $rdv = RendezVous::where('patient_id', $request->user()->id)
+        $rdv = Rendezvous::where('patient_id', $request->user()->id)
             ->with('medecin')
             ->latest()
             ->get();
@@ -95,7 +95,7 @@ class RendezVousController extends Controller
     //  Rendez-vous du médecin connecté
     public function rendezVousMedecin(Request $request)
     {
-        $rdv = RendezVous::where('medecin_id', $request->user()->id)
+        $rdv = Rendezvous::where('medecin_id', $request->user()->id)
             ->with('patient')
             ->latest()
             ->get();

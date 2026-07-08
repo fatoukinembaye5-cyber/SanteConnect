@@ -1,11 +1,30 @@
 // src/app/auth/Login.jsx
 import React, { useState } from 'react';
-import MaquetteLayout from '../../components/MaquetteLayout'; // Vérifie bien que le chemin vers ton layout est correct
+import { useNavigate } from 'react-router-dom'; // Importation du système de navigation
+import MaquetteLayout from '../../components/MaquetteLayout'; 
 
 const Login = () => {
   const [role, setRole] = useState('Administrateur');
   const [email, setEmail] = useState('admin@santeconnect.sn');
   const [password, setPassword] = useState('thies2024');
+
+  const navigate = useNavigate(); // Initialisation du hook de navigation
+
+  // GESTION DE LA REDIRECTION SELON LE RÔLE
+  const handleSubmit = (e) => {
+    e.preventDefault(); 
+    
+    if (role === 'Administrateur') {
+      // Redirige vers la page d'administration
+      navigate('/admin'); 
+    } else if (role === 'Médecin') {
+      // Redirige vers l'espace médecin
+      navigate('/medecin'); 
+    } else if (role === 'Patient') {
+      // Redirige vers l'espace patient
+      navigate('/patient'); 
+    }
+  };
 
   return (
     <MaquetteLayout 
@@ -78,8 +97,8 @@ const Login = () => {
               ))}
             </div>
 
-            {/* FORMULAIRE */}
-            <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+            {/* FORMULAIRE RE-LIÉ À LA FONCTION */}
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500">
                   Adresse email
