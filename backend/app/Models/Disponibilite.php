@@ -14,7 +14,7 @@ class Disponibilite extends Model
         'date',
         'heure_debut',
         'heure_fin',
-        'est_disponible'
+        'disponible'
     ];
 
     public function medecin()

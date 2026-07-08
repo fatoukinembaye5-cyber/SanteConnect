@@ -20,6 +20,10 @@ const Login = () => {
       if (response.token) {
         localStorage.setItem('token', response.token);
         localStorage.setItem('user_role', role);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        navigate('/rendezvous/dashboard');
+      } else {
+        setError('Impossible de récupérer le jeton d’authentification.');
       }
 
       redirectionParRole(role);
@@ -158,7 +162,7 @@ const Login = () => {
               Nouveau patient ?{' '}
               <a href="/register" className="text-[#0A5C47] font-bold hover:underline">
                 Créer un compte
-              </a>
+              </Link>
             </p>
           </div>
         </div>
