@@ -5,28 +5,18 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from '../app/auth/Login';
 import Register from '../app/auth/Register';
 
-// Composants temporaires simples pour tester les redirections
-const AdminDashboard = () => <div className="p-8 text-2xl font-bold text-emerald-800 bg-emerald-50 min-h-screen">👋 Bienvenue dans l'Espace Administrateur (SantéConnect)</div>;
-const MedecinDashboard = () => <div className="p-8 text-2xl font-bold text-blue-800 bg-blue-50 min-h-screen">🩺 Bienvenue dans l'Espace Médecin (SantéConnect)</div>;
-const PatientDashboard = () => <div className="p-8 text-2xl font-bold text-purple-800 bg-purple-50 min-h-screen">👤 Bienvenue dans l'Espace Patient (SantéConnect)</div>;
-
 const AppRouter = () => {
   return (
     <Router>
       <Routes>
-          {/* 1. Redirection de la racine -> toujours vers /login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* La racine affiche DIRECTEMENT ton bel écran de connexion vert */}
+        <Route path="/" element={<Login />} />
 
-          {/* 2. Routes Publiques */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        {/* Les routes d'authentification */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* 3. Les nouvelles routes de redirection pour tes espaces utilisateurs */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/medecin" element={<MedecinDashboard />} />
-        <Route path="/patient" element={<PatientDashboard />} />
-
-        {/* 4. Redirection en cas de page introuvable (404) */}
+        {/* Si l'application cherche une autre page, elle revient d'office sur le Login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
