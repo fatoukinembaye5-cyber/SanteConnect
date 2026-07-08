@@ -5,27 +5,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from '../app/auth/Login';
 import Register from '../app/auth/Register';
 
-// Dashboards
-import AdminDashboard from '../app/dashboard/AdminDashboard';
-import MedecinDashboard from '../app/dashboard/MedecinDashboard';
-import PatientDashboard from '../app/dashboard/PatientDashboard';
-
-// Layouts
-import PatientLayout from '../layouts/PatientLayout';
-
-// Rendez-vous
-import RendezVousLayout from '../RendezVous/RendezVousLayout';
-import RendezVousDashboard from '../RendezVous/RendezVousDashboard';
-import ListeRendezVous from '../RendezVous/ListeRendezVous';
-import AjouterRendezVous from '../RendezVous/AjouterRendezVous';
-import Calendrier from '../RendezVous/Calendrier';
-import MesRendezVous from '../RendezVous/MesRendezVous';
-import Patients from '../RendezVous/Patients';
-import Medecins from '../RendezVous/Medecins';
-import Dossiers from '../RendezVous/Dossiers';
-import Statistiques from '../RendezVous/Statistiques';
-
-// Context & Protection (removed) - routes are public
+// Composants temporaires simples pour tester les redirections
+const AdminDashboard = () => <div className="p-8 text-2xl font-bold text-emerald-800 bg-emerald-50 min-h-screen">👋 Bienvenue dans l'Espace Administrateur (SantéConnect)</div>;
+const MedecinDashboard = () => <div className="p-8 text-2xl font-bold text-blue-800 bg-blue-50 min-h-screen">🩺 Bienvenue dans l'Espace Médecin (SantéConnect)</div>;
+const PatientDashboard = () => <div className="p-8 text-2xl font-bold text-purple-800 bg-purple-50 min-h-screen">👤 Bienvenue dans l'Espace Patient (SantéConnect)</div>;
 
 const AppRouter = () => {
   return (
@@ -38,31 +21,13 @@ const AppRouter = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* 3. Espace Patient (avec Layout et Dashboard) */}
-          <Route path="/patient" element={<PatientLayout />}>
-            <Route path="dashboard" element={<PatientDashboard />} />
-          </Route>
+        {/* 3. Les nouvelles routes de redirection pour tes espaces utilisateurs */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/medecin" element={<MedecinDashboard />} />
+        <Route path="/patient" element={<PatientDashboard />} />
 
-          {/* 4. Autres Espaces Privés */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/medecin" element={<MedecinDashboard />} />
-
-          {/* 5. Routes Rendez-vous */}
-          <Route path="/rendezvous" element={<RendezVousLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<RendezVousDashboard />} />
-            <Route path="liste" element={<ListeRendezVous />} />
-            <Route path="ajouter" element={<AjouterRendezVous />} />
-            <Route path="calendrier" element={<Calendrier />} />
-            <Route path="mes" element={<MesRendezVous />} />
-            <Route path="patients" element={<Patients />} />
-            <Route path="medecins" element={<Medecins />} />
-            <Route path="dossiers" element={<Dossiers />} />
-            <Route path="statistiques" element={<Statistiques />} />
-          </Route>
-
-          {/* 6. Redirection 404 */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* 4. Redirection en cas de page introuvable (404) */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

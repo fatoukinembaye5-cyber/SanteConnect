@@ -23,40 +23,43 @@ export async function logoutRequest() {
 }
 // services/authService.js
 
+// CORRECTION VITE : Remplacement de process.env par import.meta.env
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+
+async function handleResponse(response) {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data.message || 'Erreur serveur';
+    const err = new Error(message);
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+}
+
 export const authService = {
-  login: async (email, password, role) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: 'demo-token',
-          user: {
-            email,
-            role,
-          },
-        });
-      }, 300);
+  login: async (email, password) => {
+    const res = await fetch(`${API_BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
     });
+    return handleResponse(res);
   },
 
-  // Nouvelle fonction pour l'inscription
   register: async (userData) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (userData.email && userData.password && userData.nom) {
-          resolve({
-            success: true,
-            message: "Compte créé avec succès !",
-            user: userData
-          });
-        } else {
-          reject(new Error("Veuillez remplir tous les champs obligatoires."));
-        }
-      }, 1000);
+    // Expecting { name, email, password, role, telephone? }
+    const res = await fetch(`${API_BASE}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
     });
+    return handleResponse(res);
   },
 
   logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_role");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_role');
   }
 };
