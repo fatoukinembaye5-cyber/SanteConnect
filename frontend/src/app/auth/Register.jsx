@@ -1,232 +1,149 @@
-﻿// src/app/auth/Register.jsx
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    prenom: '',
-    nom: '',
-    telephone: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [loading, setLoading] = useState(false);
+  const [prenom, setPrenom] = useState('');
+  const [nom, setNom] = useState('');
+  const [telephone, setTelephone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('patient');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
-    setSuccess('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      setLoading(false);
-      return;
-    }
-
+    setLoading(true);
     try {
-      const payload = {
-        name: `${formData.prenom} ${formData.nom}`.trim(),
-        email: formData.email,
-        password: formData.password,
-        role: 'patient',
-        telephone: formData.telephone
-      };
-
-      const response = await authService.register(payload);
-      setSuccess(response.message || 'Inscription réussie !');
-
-      if (response.access_token) {
-        localStorage.setItem('access_token', response.access_token);
-        localStorage.setItem('user_role', response.user?.role || 'patient');
-        localStorage.setItem('user', JSON.stringify(response.user));
+      // client-side validation
+      const errors = {};
+      if (!prenom) errors.prenom = 'Le prénom est requis.';
+      if (!nom) errors.nom = 'Le nom est requis.';
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = 'Entrez une adresse email valide.';
+      if (!password || password.length < 8) errors.password = 'Le mot de passe doit contenir au moins 8 caractères.';
+      if (Object.keys(errors).length) {
+        setFieldErrors(errors);
+        setLoading(false);
+        return;
       }
 
-      setTimeout(() => {
-        navigate('/login');
-      }, 1800);
+      const payload = {
+        name: `${prenom} ${nom}`.trim(),
+        email,
+        password,
+        role,
+        telephone: telephone || null,
+      };
+
+      const res = await authService.register(payload);
+      if (res.access_token) {
+        localStorage.setItem('access_token', res.access_token);
+        localStorage.setItem('user_role', (res.user?.role || role).toLowerCase());
+        localStorage.setItem('user', JSON.stringify(res.user));
+        navigate('/patient');
+      } else {
+        setError(res.message || 'Inscription impossible');
+      }
     } catch (err) {
-      console.error("Erreur d'inscription :", err.message);
-      setError(err.message || 'Impossible de créer le compte.');
+      const data = err.data || {};
+      if (data.errors) {
+        setFieldErrors(Object.fromEntries(Object.entries(data.errors).map(([k, v]) => [k, v[0]])));
+        setError(data.message || 'Veuillez corriger les champs.');
+      } else {
+        setError(data.message || err.message || 'Erreur lors de l\'inscription');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-10 lg:flex-row lg:items-center lg:gap-12">
-        <section className="mb-10 rounded-[32px] bg-gradient-to-br from-emerald-700 via-slate-900 to-cyan-800 p-10 shadow-2xl shadow-slate-950/40 lg:flex-1 lg:p-16">
-          <div className="max-w-xl">
-            <div className="inline-flex items-center gap-3 rounded-full bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-emerald-100/90">
-              Nouveau compte patient
+    <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-5xl rounded-2xl shadow-xl overflow-hidden flex bg-transparent">
+        <div className="hidden md:block md:w-2/5 bg-gradient-to-b from-[#0f7a57] to-[#053a2d] text-white p-12 relative">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-[#1CB472] rounded-full" />
+            <span className="font-semibold">SantéConnect</span>
+          </div>
+          <h2 className="mt-12 text-3xl font-extrabold leading-tight">Rejoignez SantéConnect</h2>
+          <p className="mt-4 text-sm text-[#DDF3EC]/80 max-w-sm">Créez un compte pour prendre rendez-vous, suivre vos consultations et gérer votre dossier médical en toute sécurité.</p>
+
+          <div className="absolute bottom-6 left-6 right-6 flex gap-4">
+            <div className="flex-1 rounded-lg bg-[#05523f] p-3 text-center">
+              <div className="text-sm font-bold">1340</div>
+              <div className="text-xs text-[#DDF3EC]/70">Patients inscrits</div>
             </div>
-
-            <h1 className="mt-10 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Créez votre espace SantéConnect.
-            </h1>
-            <p className="mt-6 max-w-lg text-sm leading-7 text-emerald-100/80 sm:text-base">
-              Inscrivez-vous rapidement pour gérer vos rendez-vous, consulter vos ordonnances et accéder à votre dossier médical en toute sécurité.
-            </p>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                <p className="text-sm uppercase tracking-[0.2em] text-emerald-200/80">Support</p>
-                <p className="mt-3 text-lg font-medium text-white">Assistance médicale continue</p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-                <p className="text-sm uppercase tracking-[0.2em] text-emerald-200/80">Sécurité</p>
-                <p className="mt-3 text-lg font-medium text-white">Confidentialité de vos données</p>
-              </div>
+            <div className="flex-1 rounded-lg bg-[#05523f] p-3 text-center">
+              <div className="text-sm font-bold">45</div>
+              <div className="text-xs text-[#DDF3EC]/70">Médecins</div>
+            </div>
+            <div className="flex-1 rounded-lg bg-[#05523f] p-3 text-center">
+              <div className="text-sm font-bold">320</div>
+              <div className="text-xs text-[#DDF3EC]/70">RDV/Mois</div>
             </div>
           </div>
-        </section>
+        </div>
 
-        <main className="lg:flex-1">
-          <div className="overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
-            <div className="border-b border-slate-800/80 bg-slate-900/80 px-8 py-7">
-              <div className="flex items-center justify-between gap-4 text-slate-200">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80">Inscription</p>
-                  <h2 className="mt-3 text-2xl font-semibold">Rejoignez SantéConnect</h2>
-                </div>
-                <div className="rounded-2xl bg-slate-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-300">
-                  Patient uniquement
-                </div>
-              </div>
-            </div>
+        <div className="w-full md:w-3/5 bg-white p-10 md:p-12 rounded-tr-2xl rounded-br-2xl">
+          <div className="max-w-md mx-auto">
+            <h3 className="text-xl font-semibold text-gray-800">Créer un compte</h3>
+            <p className="text-sm text-gray-500 mt-1">Entrez vos informations pour commencer</p>
 
-            <div className="p-8 sm:p-10">
-              {error && (
-                <div className="mb-6 rounded-3xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-                  {error}
-                </div>
-              )}
-              {success && (
-                <div className="mb-6 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-                  {success}
-                </div>
-              )}
-
-              <form className="grid gap-5" onSubmit={handleSubmit}>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm text-slate-300">
-                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Prénom</span>
-                    <input
-                      type="text"
-                      name="prenom"
-                      value={formData.prenom}
-                      onChange={handleChange}
-                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                      placeholder="Moussa"
-                      required
-                    />
-                  </label>
-
-                  <label className="block text-sm text-slate-300">
-                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Nom</span>
-                    <input
-                      type="text"
-                      name="nom"
-                      value={formData.nom}
-                      onChange={handleChange}
-                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                      placeholder="Diop"
-                      required
-                    />
-                  </label>
-                </div>
-
-                <label className="block text-sm text-slate-300">
-                  <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Téléphone</span>
-                  <input
-                    type="tel"
-                    name="telephone"
-                    value={formData.telephone}
-                    onChange={handleChange}
-                    className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                    placeholder="+221 77 000 00 00"
-                    required
-                  />
-                </label>
-
-                <label className="block text-sm text-slate-300">
-                  <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Email</span>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                    placeholder="moussa@example.sn"
-                    required
-                  />
-                </label>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block text-sm text-slate-300">
-                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Mot de passe</span>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </label>
-
-                  <label className="block text-sm text-slate-300">
-                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Confirmer</span>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
-                      placeholder="••••••••"
-                      required
-                    />
-                  </label>
-                </div>
-
+            <div className="mt-6 flex gap-3">
+              {['Patient', 'Médecin'].map((r) => (
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full rounded-3xl bg-emerald-400 px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? 'Création en cours...' : 'Créer mon compte'}
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r.toLowerCase())}
+                  className={`px-4 py-2 rounded-full text-sm font-medium ${role === r.toLowerCase() ? 'bg-[#06B17A] text-white shadow' : 'bg-[#F3F4F6] text-gray-700 border border-gray-200'}`}>
+                  {r}
                 </button>
-              </form>
+              ))}
+            </div>
 
-              <div className="mt-8 text-center text-sm text-slate-400">
-                <p>
-                  Déjà membre ?{' '}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    className="text-emerald-300 hover:text-emerald-100"
-                  >
-                    Connectez-vous
-                  </button>
-                </p>
+            {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
+
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <input aria-invalid={fieldErrors.prenom ? 'true' : 'false'} placeholder="Prénom" value={prenom} onChange={(e)=>setPrenom(e.target.value)} className={`w-full rounded-lg px-4 py-3 text-sm ${fieldErrors.prenom ? 'border border-red-400' : 'border border-gray-200'}`} />
+                  {fieldErrors.prenom && <div className="mt-1 text-xs text-red-600">{fieldErrors.prenom}</div>}
+                </div>
+                <div>
+                  <input aria-invalid={fieldErrors.nom ? 'true' : 'false'} placeholder="Nom" value={nom} onChange={(e)=>setNom(e.target.value)} className={`w-full rounded-lg px-4 py-3 text-sm ${fieldErrors.nom ? 'border border-red-400' : 'border border-gray-200'}`} />
+                  {fieldErrors.nom && <div className="mt-1 text-xs text-red-600">{fieldErrors.nom}</div>}
+                </div>
               </div>
+
+              <div>
+                <input aria-invalid={fieldErrors.telephone ? 'true' : 'false'} placeholder="Téléphone" value={telephone} onChange={(e)=>setTelephone(e.target.value)} className={`w-full rounded-lg px-4 py-3 text-sm ${fieldErrors.telephone ? 'border border-red-400' : 'border border-gray-200'}`} />
+                {fieldErrors.telephone && <div className="mt-1 text-xs text-red-600">{fieldErrors.telephone}</div>}
+              </div>
+
+              <div>
+                <input aria-invalid={fieldErrors.email ? 'true' : 'false'} placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} className={`w-full rounded-lg px-4 py-3 text-sm ${fieldErrors.email ? 'border border-red-400' : 'border border-gray-200'}`} />
+                {fieldErrors.email && <div className="mt-1 text-xs text-red-600">{fieldErrors.email}</div>}
+              </div>
+
+              <div>
+                <input aria-invalid={fieldErrors.password ? 'true' : 'false'} type="password" placeholder="Mot de passe" value={password} onChange={(e)=>setPassword(e.target.value)} className={`w-full rounded-lg px-4 py-3 text-sm ${fieldErrors.password ? 'border border-red-400' : 'border border-gray-200'}`} />
+                {fieldErrors.password && <div className="mt-1 text-xs text-red-600">{fieldErrors.password}</div>}
+              </div>
+
+              <div>
+                <button type="submit" className="w-full bg-[#06B17A] hover:bg-[#05a16a] text-white rounded-lg py-3 font-semibold">{loading ? 'Création...' : "S'inscrire"}</button>
+              </div>
+            </form>
+
+            <div className="mt-6 text-center text-sm">
+              Déjà inscrit ? <a href="/login" className="text-[#06B17A] font-medium">Se connecter</a>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </div>
   );
