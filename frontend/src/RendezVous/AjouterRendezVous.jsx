@@ -25,7 +25,7 @@ function AjouterRendezVous() {
         ]);
         setPatients(patientsData);
         setMedecins(medecinsData);
-      } catch (err) {
+      } catch {
         setMessage('Impossible de charger les patients ou médecins.');
       }
     };

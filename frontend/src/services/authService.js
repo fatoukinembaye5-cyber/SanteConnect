@@ -49,17 +49,37 @@ export const authService = {
   },
 
   register: async (userData) => {
-    // Expecting { name, email, password, role, telephone? }
     const res = await fetch(`${API_BASE}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
+      body: JSON.stringify({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role?.toLowerCase() || 'patient',
+        telephone: userData.telephone || null,
+      })
     });
     return handleResponse(res);
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
+  logout: async () => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } catch {
+        // ignore logout errors
+      }
+    }
+    localStorage.removeItem('access_token');
     localStorage.removeItem('user_role');
+    localStorage.removeItem('user');
   }
 };
