@@ -1,5 +1,5 @@
-// src/app/auth/Register.jsx
-import React, { useState } from 'react';
+﻿// src/app/auth/Register.jsx
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
@@ -30,7 +30,6 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    // Validation rapide du mot de passe
     if (formData.password !== formData.confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
       setLoading(false);
@@ -42,7 +41,7 @@ const Register = () => {
         name: `${formData.prenom} ${formData.nom}`.trim(),
         email: formData.email,
         password: formData.password,
-        role: 'Patient',
+        role: 'patient',
         telephone: formData.telephone
       };
 
@@ -50,194 +49,184 @@ const Register = () => {
       setSuccess(response.message || 'Inscription réussie !');
 
       if (response.access_token) {
-        localStorage.setItem('token', response.access_token);
-        localStorage.setItem('user_role', response.user?.role || 'Patient');
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('user_role', response.user?.role || 'patient');
+        localStorage.setItem('user', JSON.stringify(response.user));
       }
 
       setTimeout(() => {
         navigate('/login');
-      }, 2000);
+      }, 1800);
     } catch (err) {
       console.error("Erreur d'inscription :", err.message);
-      
-      // SÉCURITÉ SANS ÉCHEC (MODE DÉMO FRONTEND)
-      setSuccess("Mode démo : Inscription simulée avec succès !");
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setError(err.message || 'Impossible de créer le compte.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6f4] flex items-center justify-center p-4 antialiased font-sans">
-      
-      {/* Conteneur Principal Card */}
-      <div className="bg-white rounded-[24px] shadow-xl overflow-hidden max-w-5xl w-full flex min-h-[600px] flex-col md:flex-row">
-        
-        {/* PANNEAU GAUCHE VERT */}
-        <div className="md:w-1/2 bg-[#033A2F] text-white p-12 flex flex-col justify-between relative overflow-hidden hidden md:flex">
-          <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-[#0A5C47] rounded-full opacity-40 blur-sm"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-40 h-40 bg-[#0A5C47] rounded-full opacity-30 blur-sm"></div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-10 lg:flex-row lg:items-center lg:gap-12">
+        <section className="mb-10 rounded-[32px] bg-gradient-to-br from-emerald-700 via-slate-900 to-cyan-800 p-10 shadow-2xl shadow-slate-950/40 lg:flex-1 lg:p-16">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-3 rounded-full bg-white/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-emerald-100/90">
+              Nouveau compte patient
+            </div>
 
-          <div className="relative z-10 flex items-center space-x-2">
-            <div className="w-3 h-3 bg-[#1CB472] rounded-full"></div>
-            <span className="font-bold text-sm tracking-wide">SantéConnect</span>
-          </div>
-
-          <div className="relative z-10 my-auto space-y-4">
-            <h1 className="text-3xl font-bold leading-tight tracking-wide">
-              Rejoignez la communauté SantéConnect
+            <h1 className="mt-10 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+              Créez votre espace SantéConnect.
             </h1>
-            <p className="text-xs text-[#DDF3EC] opacity-80 leading-relaxed font-light">
-              Créez votre compte patient en quelques instants pour gérer vos rendez-vous, consulter vos ordonnances et suivre votre dossier médical en ligne de manière sécurisée.
+            <p className="mt-6 max-w-lg text-sm leading-7 text-emerald-100/80 sm:text-base">
+              Inscrivez-vous rapidement pour gérer vos rendez-vous, consulter vos ordonnances et accéder à votre dossier médical en toute sécurité.
             </p>
-          </div>
 
-          <div className="relative z-10 flex items-center space-x-2 text-[11px] text-[#DDF3EC] bg-[#0A5C47]/50 border border-[#1CB472]/20 p-3 rounded-xl">
-            <span>🛡️ Vos données médicales sont hautement sécurisées et confidentielles.</span>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                <p className="text-sm uppercase tracking-[0.2em] text-emerald-200/80">Support</p>
+                <p className="mt-3 text-lg font-medium text-white">Assistance médicale continue</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                <p className="text-sm uppercase tracking-[0.2em] text-emerald-200/80">Sécurité</p>
+                <p className="mt-3 text-lg font-medium text-white">Confidentialité de vos données</p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* PANNEAU DROIT (Formulaire d'Inscription) */}
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center bg-white text-left">
-          <div className="max-w-md w-full mx-auto space-y-4">
-            
-            {/* Titre */}
-            <div>
-              <h2 className="text-2xl font-bold text-[#1E2421]">Inscription Patient</h2>
-              <p className="text-xs text-gray-400 mt-1">Créez vos accès pour planifier vos consultations</p>
+        <main className="lg:flex-1">
+          <div className="overflow-hidden rounded-[32px] border border-white/10 bg-slate-950/95 shadow-2xl shadow-black/40 backdrop-blur-xl">
+            <div className="border-b border-slate-800/80 bg-slate-900/80 px-8 py-7">
+              <div className="flex items-center justify-between gap-4 text-slate-200">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-emerald-300/80">Inscription</p>
+                  <h2 className="mt-3 text-2xl font-semibold">Rejoignez SantéConnect</h2>
+                </div>
+                <div className="rounded-2xl bg-slate-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-slate-300">
+                  Patient uniquement
+                </div>
+              </div>
             </div>
 
-            {/* Alertes d'état */}
-            {error && (
-              <div className="bg-red-50 text-red-600 text-xs p-2.5 rounded-xl border border-red-200 text-center font-medium">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="bg-emerald-50 text-emerald-600 text-xs p-2.5 rounded-xl border border-emerald-200 text-center font-medium">
-                {success}
-              </div>
-            )}
+            <div className="p-8 sm:p-10">
+              {error && (
+                <div className="mb-6 rounded-3xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="mb-6 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+                  {success}
+                </div>
+              )}
 
-            {/* Formulaire */}
-            <form onSubmit={handleSubmit} className="space-y-3">
-              
-              {/* Groupe Prénom & Nom */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Prénom</label>
+              <form className="grid gap-5" onSubmit={handleSubmit}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Prénom</span>
+                    <input
+                      type="text"
+                      name="prenom"
+                      value={formData.prenom}
+                      onChange={handleChange}
+                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                      placeholder="Moussa"
+                      required
+                    />
+                  </label>
+
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Nom</span>
+                    <input
+                      type="text"
+                      name="nom"
+                      value={formData.nom}
+                      onChange={handleChange}
+                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                      placeholder="Diop"
+                      required
+                    />
+                  </label>
+                </div>
+
+                <label className="block text-sm text-slate-300">
+                  <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Téléphone</span>
                   <input
-                    type="text"
-                    name="prenom"
-                    value={formData.prenom}
+                    type="tel"
+                    name="telephone"
+                    value={formData.telephone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                    placeholder="Moussa"
+                    className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                    placeholder="+221 77 000 00 00"
                     required
                   />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Nom</label>
+                </label>
+
+                <label className="block text-sm text-slate-300">
+                  <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Email</span>
                   <input
-                    type="text"
-                    name="nom"
-                    value={formData.nom}
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                    placeholder="Diop"
+                    className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                    placeholder="moussa@example.sn"
                     required
                   />
+                </label>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Mot de passe</span>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                      placeholder="••••••••"
+                      required
+                    />
+                  </label>
+
+                  <label className="block text-sm text-slate-300">
+                    <span className="mb-3 block text-xs uppercase tracking-[0.2em] text-slate-500">Confirmer</span>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      className="w-full rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20"
+                      placeholder="••••••••"
+                      required
+                    />
+                  </label>
                 </div>
-              </div>
 
-              {/* Téléphone */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Numéro de Téléphone</label>
-                <input
-                  type="tel"
-                  name="telephone"
-                  value={formData.telephone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                  placeholder="+221 77 000 00 00"
-                  required
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Adresse email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                  placeholder="moussa@example.sn"
-                  required
-                />
-              </div>
-
-              {/* Mot de passe */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Mot de passe</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              {/* Confirmation du mot de passe */}
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Confirmer le mot de passe</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#0A5C47] focus:bg-white transition"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              {/* Bouton s'inscrire */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full mt-4 bg-[#0A5C47] hover:bg-[#033A2F] text-white py-2.5 rounded-xl text-xs font-semibold shadow-md shadow-emerald-900/10 transition flex justify-center items-center"
-              >
-                {loading && (
-                  <span className="inline-block animate-spin mr-2 border-2 border-white border-t-transparent rounded-full w-3 h-3"></span>
-                )}
-                Créer mon compte
-              </button>
-            </form>
-
-            {/* Lien de retour vers le login */}
-            <div className="text-center pt-2">
-              <p className="text-[11px] text-gray-400">
-                Vous avez déjà un compte ?{' '}
-                <button 
-                  onClick={() => navigate('/login')} 
-                  className="text-[#0A5C47] font-bold hover:underline bg-transparent border-none cursor-pointer"
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-3xl bg-emerald-400 px-5 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Se connecter
+                  {loading ? 'Création en cours...' : 'Créer mon compte'}
                 </button>
-              </p>
+              </form>
+
+              <div className="mt-8 text-center text-sm text-slate-400">
+                <p>
+                  Déjà membre ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/login')}
+                    className="text-emerald-300 hover:text-emerald-100"
+                  >
+                    Connectez-vous
+                  </button>
+                </p>
+              </div>
             </div>
-
           </div>
-        </div>
-
+        </main>
       </div>
     </div>
   );

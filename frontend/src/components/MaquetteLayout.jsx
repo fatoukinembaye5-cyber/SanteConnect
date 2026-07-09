@@ -1,5 +1,4 @@
 // src/components/MaquetteLayout.jsx
-import React from 'react';
 
 const MaquetteLayout = ({ children, num, title, desc, url }) => {
   return (

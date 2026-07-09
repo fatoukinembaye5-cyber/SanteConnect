@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function Medecins() {
   // Données de l'équipe médicale basées sur la maquette

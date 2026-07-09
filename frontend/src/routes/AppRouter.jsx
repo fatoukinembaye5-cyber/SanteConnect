@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Auth
@@ -29,10 +28,7 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
-  const RequireAuth = ({ children }) => {
-    const token = localStorage.getItem('access_token');
-    return token ? children : <Navigate to="/login" replace />;
-  };
+
 
   return (
     <Router>
