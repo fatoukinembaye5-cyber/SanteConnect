@@ -11,8 +11,14 @@ class Medecin extends Model
 
     protected $fillable = [
         'user_id',
-        'specialite_id',
-        'telephone'
+        'nom',
+        'prenom',
+        'telephone',
+        'email',
+        'specialite',
+        'numero_ordre',
+        'description',
+        'disponible'
     ];
 
     public function user()

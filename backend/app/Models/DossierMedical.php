@@ -9,12 +9,14 @@ class DossierMedical extends Model
 {
     use HasFactory;
 
+    protected $table = 'dossier_medicaux';
+
     protected $fillable = [
         'patient_id',
         'antecedents',
         'allergies',
-        'traitements',
-        'notes_medicales'
+        'group_sanguin',
+        'notes'
     ];
 
     public function patient()

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -17,17 +18,21 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'required|string'
+            'telephone' => 'nullable|string',
+            'role' => 'required|string|in:administrateur,medecin,patient'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role,
+            'telephone' => $request->telephone,
+            'role' => strtolower($request->role),
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = Str::random(60);
+        $user->api_token = $token;
+        $user->save();
 
         return response()->json([
             'message' => 'Utilisateur créé avec succès',
@@ -53,7 +58,9 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = Str::random(60);
+        $user->api_token = $token;
+        $user->save();
 
         return response()->json([
             'message' => 'Connexion réussie',
@@ -66,7 +73,12 @@ class AuthController extends Controller
     // LOGOUT
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+        $user = $request->user();
+
+        if ($user) {
+            $user->api_token = null;
+            $user->save();
+        }
 
         return response()->json([
             'message' => 'Déconnexion réussie'
