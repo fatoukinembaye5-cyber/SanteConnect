@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
+    protected $model = User::class;
+
     /**
      * The current password being used by the factory.
      */
@@ -28,10 +30,32 @@ class UserFactory extends Factory
             'nom' => fake()->lastName(),
             'prenom' => fake()->firstName(),
             'email' => fake()->unique()->safeEmail(),
+            'telephone' => fake()->phoneNumber(),
             'password' => static::$password ??= Hash::make('password'),
             'role' => 'patient', // Rôle obligatoire d'après vos contraintes (administrateur, medecin, patient)
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function patient(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'patient',
+        ]);
+    }
+
+    public function medecin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'medecin',
+        ]);
+    }
+
+    public function administrateur(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'administrateur',
+        ]);
     }
 
     /**

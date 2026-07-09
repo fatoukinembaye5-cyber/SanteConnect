@@ -29,15 +29,20 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
+  const RequireAuth = ({ children }) => {
+    const token = localStorage.getItem('access_token');
+    return token ? children : <Navigate to="/login" replace />;
+  };
+
   return (
     <Router>
       <Routes>
-          {/* 1. Redirection de la racine -> toujours vers /login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* La racine affiche DIRECTEMENT ton bel écran de connexion vert */}
+        <Route path="/" element={<Login />} />
 
-          {/* 2. Routes Publiques */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        {/* Les routes d'authentification */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
           {/* 3. Espace Patient (avec Layout et Dashboard) */}
           <Route path="/patient" element={<PatientLayout />}>
