@@ -7,7 +7,8 @@ import Register from '../app/auth/Register';
 
 // Dashboards
 import AdminDashboard from '../app/dashboard/AdminDashboard';
-import MedecinDashboard from '../app/dashboard/MedecinDashboard';
+import MedecinLayout from '../layouts/MedecinLayout';
+import MedecinDashboardPage from '../dashboard/MedecinDashboard';
 import PatientDashboard from '../app/dashboard/PatientDashboard';
 
 // Layouts
@@ -45,7 +46,10 @@ const AppRouter = () => {
 
           {/* 4. Autres Espaces Privés */}
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/medecin" element={<MedecinDashboard />} />
+          <Route path="/medecin" element={<MedecinLayout />}>
+            <Route index element={<Navigate to="tableau-de-board" replace />} />
+            <Route path="tableau-de-board" element={<MedecinDashboardPage />} />
+          </Route>
 
           {/* 5. Routes Rendez-vous */}
           <Route path="/rendezvous" element={<RendezVousLayout />}>
