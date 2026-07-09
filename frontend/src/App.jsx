@@ -4,8 +4,12 @@ import './index.css'; // Assure-toi que Tailwind est bien importé ici
 
 function App() {
   return (
-    <AppRouter />
+    <>
+      {/* Vous pouvez basculer entre <AppRouter /> ou <AdminDashboard /> selon vos besoins réels */}
+      <AdminDashboard />
+    </>
   );
+  
 }
 
 export default App;
