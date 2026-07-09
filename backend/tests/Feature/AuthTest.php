@@ -75,4 +75,38 @@ class AuthTest extends TestCase
         $response->assertStatus(401);
         $response->assertJson([ 'message' => 'Identifiants incorrects' ]);
     }
+
+    public function test_authenticated_user_can_fetch_profile(): void
+    {
+        $user = User::factory()->create([
+            'api_token' => 'test-token',
+        ]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer test-token',
+        ])->getJson('/api/me');
+
+        $response->assertStatus(200);
+        $response->assertJson([ 'id' => $user->id, 'email' => $user->email, 'role' => $user->role ]);
+    }
+
+    public function test_authenticated_user_can_logout(): void
+    {
+        $user = User::factory()->create([
+            'api_token' => 'logout-token',
+        ]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer logout-token',
+        ])->postJson('/api/logout');
+
+        $response->assertStatus(200);
+        $response->assertJson([ 'message' => 'Déconnexion réussie' ]);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => $user->email,
+            'api_token' => null,
+        ]);
+    }
 }

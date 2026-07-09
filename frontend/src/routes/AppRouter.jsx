@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 // Auth
@@ -7,7 +6,8 @@ import Register from '../app/auth/Register';
 
 // Dashboards
 import AdminDashboard from '../app/dashboard/AdminDashboard';
-import MedecinDashboard from '../app/dashboard/MedecinDashboard';
+import MedecinLayout from '../layouts/MedecinLayout';
+import MedecinDashboardPage from '../dashboard/MedecinDashboard';
 import PatientDashboard from '../app/dashboard/PatientDashboard';
 
 // Layouts
@@ -28,10 +28,7 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
-  const RequireAuth = ({ children }) => {
-    const token = localStorage.getItem('access_token');
-    return token ? children : <Navigate to="/login" replace />;
-  };
+
 
   return (
     <Router>
@@ -50,7 +47,10 @@ const AppRouter = () => {
 
           {/* 4. Autres Espaces Privés */}
           <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/medecin" element={<MedecinDashboard />} />
+          <Route path="/medecin" element={<MedecinLayout />}>
+            <Route index element={<Navigate to="tableau-de-board" replace />} />
+            <Route path="tableau-de-board" element={<MedecinDashboardPage />} />
+          </Route>
 
           {/* 5. Routes Rendez-vous */}
           <Route path="/rendezvous" element={<RendezVousLayout />}>

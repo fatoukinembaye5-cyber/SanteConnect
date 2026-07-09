@@ -1,4 +1,3 @@
-import React from 'react';
 import MaquetteLayout from '../components/MaquetteLayout';
 
 const Admin = () => {
