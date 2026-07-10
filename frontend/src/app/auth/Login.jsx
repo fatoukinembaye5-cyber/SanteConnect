@@ -30,9 +30,17 @@ const Login = () => {
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('user_role', userRole);
         localStorage.setItem('user', JSON.stringify(response.user));
-        if (userRole.includes('admin')) navigate('/admin');
-        else if (userRole.includes('medecin')) navigate('/medecin');
-        else navigate('/patient');
+
+        // Déterminer le chemin de redirection final selon le rôle (redirige directement vers le dashboard approprié)
+        const getHomePath = (r) => {
+          if (!r) return '/rendezvous/dashboard';
+          if (r.includes('admin') || r.includes('administrateur')) return '/rendezvous/dashboard';
+          if (r.includes('medecin')) return '/medecin/tableau-de-board';
+          if (r.includes('patient')) return '/patient/dashboard';
+          return '/rendezvous/dashboard';
+        };
+
+        navigate(getHomePath(userRole));
       } else {
         setError('Impossible de récupérer le jeton d’authentification.');
       }
@@ -51,27 +59,30 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-5xl rounded-2xl shadow-xl overflow-hidden flex bg-transparent">
+    <div className="h-screen bg-[#f3f4f6] flex items-center justify-center text-center py-12 px-4">
+      <div className="w-full  h-full overflow-hidden flex bg-transparent">
         {/* Left panel */}
-        <div className="hidden md:block md:w-2/5 bg-gradient-to-b from-[#0f7a57] to-[#053a2d] text-white p-12 relative">
-          <div className="flex items-center gap-3">
+        <div className="md:block md:w-2/5 bg-gradient-to-b from-[#0f7a57] to-[#053a2d] text-white p-12 h-full w-full flex flex-col items-between justify-center relative overflow-hidden">
+          <div className="absolute -top-10 -right-16 w-56 h-56 rounded-full bg-white/5" />
+          <div className="absolute bottom-16 -left-14 w-40 h-40 rounded-full bg-white/5" />
+
+          <div className="flex items-end gap-3 justify-start relative">
             <div className="w-3 h-3 bg-[#1CB472] rounded-full" />
             <span className="font-semibold">SantéConnect</span>
           </div>
-          <h2 className="mt-12 text-3xl font-extrabold leading-tight">Gestion intelligente des soins</h2>
-          <p className="mt-4 text-sm text-[#DDF3EC]/80 max-w-sm">Plateforme pour la gestion des rendez-vous, le suivi des patients et l'accès sécurisé au dossier médical.</p>
+          <h2 className="mt-12 text-3xl font-extrabold leading-tight relative">Gestion intelligente des soins de santé au Sénégal</h2>
+          <p className="mt-4 text-sm text-[#DDF3EC]/80 max-w-sm relative">Plateforme numérique intégrée pour la gestion des rendez-vous médicaux, le suivi des patients et la coordination des équipes soignantes.</p>
 
-          <div className="absolute bottom-6 left-6 right-6 flex gap-4">
-            <div className="flex-1 rounded-xl bg-[#075a41] p-3 text-center">
-              <div className="text-sm font-semibold">1,340</div>
-              <div className="text-xs text-[#DDF3EC]/70">Patients</div>
+          <div className="mt-10 flex flex-row gap-4 w-full max-w-md relative">
+            <div className="rounded-xl bg-[#075a41] p-3 text-center">
+              <div className="text-sm font-semibold">1,240</div>
+              <div className="text-xs text-[#DDF3EC]/70">Patients inscrits</div>
             </div>
-            <div className="flex-1 rounded-xl bg-[#075a41] p-3 text-center">
-              <div className="text-sm font-semibold">45</div>
+            <div className="rounded-xl bg-[#075a41] p-3 text-center">
+              <div className="text-sm font-semibold">48</div>
               <div className="text-xs text-[#DDF3EC]/70">Médecins</div>
             </div>
-            <div className="flex-1 rounded-xl bg-[#075a41] p-3 text-center">
+            <div className="rounded-xl bg-[#075a41] p-3 text-center">
               <div className="text-sm font-semibold">320</div>
               <div className="text-xs text-[#DDF3EC]/70">RDV/Mois</div>
             </div>
@@ -79,7 +90,7 @@ const Login = () => {
         </div>
 
         {/* Right panel (form) */}
-        <div className="w-full md:w-3/5 bg-white p-10 md:p-12 rounded-tr-2xl rounded-br-2xl">
+        <div className="w-full md:w-3/5 bg-white p-10 md:p-12 rounded-tr-2xl rounded-br-2xl flex flex-col items-center justify-center text-center">
           <div className="max-w-md mx-auto">
             <h3 className="text-xl font-semibold text-gray-800">Connexion</h3>
             <p className="text-sm text-gray-500 mt-1">Accédez à votre espace personnel</p>

@@ -138,8 +138,8 @@ function AjouterRendezVous() {
             <label>Date</label>
             <input
               type="date"
-              name="date"
-              value={formData.date}
+              name="date_rendezvous"
+              value={formData.date_rendezvous}
               onChange={handleChange}
             />
           </div>
@@ -147,8 +147,8 @@ function AjouterRendezVous() {
           <div className="datetime-field">
             <label>Heure</label>
             <select
-              name="heure"
-              value={formData.heure}
+              name="heure_rendezvous"
+              value={formData.heure_rendezvous}
               onChange={handleChange}
             >
               <option>08:00</option>
