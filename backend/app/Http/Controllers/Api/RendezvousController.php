@@ -24,16 +24,16 @@ class RendezvousController extends Controller
         $request->validate([
             'patient_id' => 'required|exists:users,id',
             'medecin_id' => 'required|exists:users,id',
-            'date' => 'required|date',
-            'heure' => 'required',
+            'date_rendezvous' => 'required|date',
+            'heure_rendezvous' => 'required',
             'motif' => 'required|string',
         ]);
 
         $rdv = Rendezvous::create([
             'patient_id' => $request->patient_id,
             'medecin_id' => $request->medecin_id,
-            'date' => $request->date,
-            'heure' => $request->heure,
+            'date_rendezvous' => $request->date_rendezvous,
+            'heure_rendezvous' => $request->heure_rendezvous,
             'motif' => $request->motif,
             'statut' => 'en_attente',
         ]);
@@ -58,8 +58,8 @@ class RendezvousController extends Controller
         $rdv = Rendezvous::findOrFail($id);
 
         $rdv->update($request->only([
-            'date',
-            'heure',
+            'date_rendezvous',
+            'heure_rendezvous',
             'motif',
             'statut'
         ]));
@@ -73,7 +73,7 @@ class RendezvousController extends Controller
     //  Supprimer un rendez-vous
     public function destroy($id)
     {
-        $rdv = RendezVous::findOrFail($id);
+        $rdv = Rendezvous::findOrFail($id);
         $rdv->delete();
 
         return response()->json([

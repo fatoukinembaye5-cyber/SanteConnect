@@ -5,10 +5,9 @@ import Login from '../app/auth/Login';
 import Register from '../app/auth/Register';
 
 // Dashboards
-import AdminDashboard from '../app/dashboard/AdminDashboard';
 import MedecinLayout from '../layouts/MedecinLayout';
-import MedecinDashboardPage from '../dashboard/MedecinDashboard';
-import PatientDashboard from '../app/dashboard/PatientDashboard';
+import MedecinDashboardPage from '../Dashboard/MedecinDashboard';
+import PatientDashboard from '../Dashboard/PatientDashboard';
 
 // Layouts
 import PatientLayout from '../layouts/PatientLayout';
@@ -28,32 +27,50 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
+  const token = localStorage.getItem('access_token');
+  const userRole = (localStorage.getItem('user_role') || '').toLowerCase();
 
+  const getHomePath = () => {
+    if (userRole.includes('admin')) return '/admin';
+    if (userRole.includes('medecin')) return '/medecin/tableau-de-board';
+    if (userRole.includes('patient')) return '/patient/dashboard';
+    return '/rendezvous/dashboard';
+  };
+
+  const RequireAuth = ({ children }) => {
+    if (!token) return <Navigate to="/login" replace />;
+    return children;
+  };
+
+  const RedirectIfAuthenticated = ({ children }) => {
+    if (token) return <Navigate to={getHomePath()} replace />;
+    return children;
+  };
 
   return (
     <Router>
       <Routes>
-        {/* La racine affiche DIRECTEMENT ton bel écran de connexion vert */}
-        <Route path="/" element={<Login />} />
+          {/* 1. Redirection de la racine -> toujours vers /login */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Les routes d'authentification */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          {/* 2. Routes Publiques */}
+          <Route path="/login" element={<RedirectIfAuthenticated><Login /></RedirectIfAuthenticated>} />
+          <Route path="/register" element={<RedirectIfAuthenticated><Register /></RedirectIfAuthenticated>} />
 
           {/* 3. Espace Patient (avec Layout et Dashboard) */}
-          <Route path="/patient" element={<PatientLayout />}>
+          <Route path="/patient" element={<RequireAuth><PatientLayout /></RequireAuth>}>
             <Route path="dashboard" element={<PatientDashboard />} />
           </Route>
 
           {/* 4. Autres Espaces Privés */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/medecin" element={<MedecinLayout />}>
+          <Route path="/admin" element={<RequireAuth><Navigate to="/rendezvous/dashboard" replace /></RequireAuth>} />
+          <Route path="/medecin" element={<RequireAuth><MedecinLayout /></RequireAuth>}>
             <Route index element={<Navigate to="tableau-de-board" replace />} />
             <Route path="tableau-de-board" element={<MedecinDashboardPage />} />
           </Route>
 
           {/* 5. Routes Rendez-vous */}
-          <Route path="/rendezvous" element={<RendezVousLayout />}>
+          <Route path="/rendezvous" element={<RequireAuth><RendezVousLayout /></RequireAuth>}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<RendezVousDashboard />} />
             <Route path="liste" element={<ListeRendezVous />} />
