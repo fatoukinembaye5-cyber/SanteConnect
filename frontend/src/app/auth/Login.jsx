@@ -162,7 +162,7 @@ const Login = () => {
               Nouveau patient ?{' '}
               <a href="/register" className="text-[#0A5C47] font-bold hover:underline">
                 Créer un compte
-              </Link>
+              </a>
             </p>
           </div>
         </div>
