@@ -6,7 +6,7 @@ function AjouterRendezVous() {
   const [formData, setFormData] = useState({
     patient_id: '',
     medecin_id: '',
-    motif: 'Consultation générale',
+    motif: 'Cmainonsultation générale',
     date_rendezvous: '',
     heure_rendezvous: '09:30',
     notes: '',

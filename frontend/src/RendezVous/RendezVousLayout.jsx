@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import './rendezvous.css';
-
+	
 const RendezVousLayout = () => {
   return (
     <div className="page-rdv">
@@ -59,3 +59,5 @@ const RendezVousLayout = () => {
 };
 
 export default RendezVousLayout;
+
+
