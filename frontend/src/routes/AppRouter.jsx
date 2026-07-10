@@ -27,7 +27,25 @@ import Statistiques from '../RendezVous/Statistiques';
 // Context & Protection (removed) - routes are public
 
 const AppRouter = () => {
+  const token = localStorage.getItem('access_token');
+  const userRole = (localStorage.getItem('user_role') || '').toLowerCase();
 
+  const getHomePath = () => {
+    if (userRole.includes('admin')) return '/admin';
+    if (userRole.includes('medecin')) return '/medecin/tableau-de-board';
+    if (userRole.includes('patient')) return '/patient/dashboard';
+    return '/rendezvous/dashboard';
+  };
+
+  const RequireAuth = ({ children }) => {
+    if (!token) return <Navigate to="/login" replace />;
+    return children;
+  };
+
+  const RedirectIfAuthenticated = ({ children }) => {
+    if (token) return <Navigate to={getHomePath()} replace />;
+    return children;
+  };
 
   return (
     <Router>
@@ -36,23 +54,23 @@ const AppRouter = () => {
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* 2. Routes Publiques */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<RedirectIfAuthenticated><Login /></RedirectIfAuthenticated>} />
+          <Route path="/register" element={<RedirectIfAuthenticated><Register /></RedirectIfAuthenticated>} />
 
           {/* 3. Espace Patient (avec Layout et Dashboard) */}
-          <Route path="/patient" element={<PatientLayout />}>
+          <Route path="/patient" element={<RequireAuth><PatientLayout /></RequireAuth>}>
             <Route path="dashboard" element={<PatientDashboard />} />
           </Route>
 
           {/* 4. Autres Espaces Privés */}
-          <Route path="/admin" element={<Navigate to="/rendezvous/dashboard" replace />} />
-          <Route path="/medecin" element={<MedecinLayout />}>
+          <Route path="/admin" element={<RequireAuth><Navigate to="/rendezvous/dashboard" replace /></RequireAuth>} />
+          <Route path="/medecin" element={<RequireAuth><MedecinLayout /></RequireAuth>}>
             <Route index element={<Navigate to="tableau-de-board" replace />} />
             <Route path="tableau-de-board" element={<MedecinDashboardPage />} />
           </Route>
 
           {/* 5. Routes Rendez-vous */}
-          <Route path="/rendezvous" element={<RendezVousLayout />}>
+          <Route path="/rendezvous" element={<RequireAuth><RendezVousLayout /></RequireAuth>}>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<RendezVousDashboard />} />
             <Route path="liste" element={<ListeRendezVous />} />

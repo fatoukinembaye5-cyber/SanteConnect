@@ -30,9 +30,17 @@ const Login = () => {
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('user_role', userRole);
         localStorage.setItem('user', JSON.stringify(response.user));
-        if (userRole.includes('admin')) navigate('/admin');
-        else if (userRole.includes('medecin')) navigate('/medecin/tableau-de-board');
-        else navigate('/patient/dashboard');
+
+        // Déterminer le chemin de redirection final selon le rôle (redirige directement vers le dashboard approprié)
+        const getHomePath = (r) => {
+          if (!r) return '/rendezvous/dashboard';
+          if (r.includes('admin') || r.includes('administrateur')) return '/rendezvous/dashboard';
+          if (r.includes('medecin')) return '/medecin/tableau-de-board';
+          if (r.includes('patient')) return '/patient/dashboard';
+          return '/rendezvous/dashboard';
+        };
+
+        navigate(getHomePath(userRole));
       } else {
         setError('Impossible de récupérer le jeton d’authentification.');
       }

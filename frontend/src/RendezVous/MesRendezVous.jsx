@@ -1,66 +1,55 @@
-import { useState } from "react";
-import "./rendezvous.css";
+﻿import { useEffect, useState } from 'react';
+import { fetchMesRendezvous } from '../services/rendezvousService';
+import './rendezvous.css';
 
 function MesRendezVous() {
-  const [mesRendezVous] = useState([
-    {
-      id: 1,
-      date: "02/06/2026",
-      heure: "08:30",
-      medecin: "Dr. Coumba Sene",
-      consultation: "Consultation générale",
-      statut: "Terminé",
-    },
-    {
-      id: 2,
-      date: "02/06/2026",
-      heure: "09:30",
-      medecin: "Dr. Mamadou Fall",
-      consultation: "Consultation générale",
-      statut: "En cours",
-    },
-    {
-      id: 3,
-      date: "02/06/2026",
-      heure: "10:00",
-      medecin: "Dr. Fatou Ndiaye",
-      consultation: "Suivi grossesse",
-      statut: "En attente",
-    },
-    {
-      id: 4,
-      date: "03/06/2026",
-      heure: "11:00",
-      medecin: "Dr. Coumba Sene",
-      consultation: "Pédiatrie",
-      statut: "Nouveau",
-    },
-    {
-      id: 5,
-      date: "04/06/2026",
-      heure: "15:30",
-      medecin: "Dr. Coumba Sene",
-      consultation: "Bilan de santé",
-      statut: "Annulé",
-    },
-  ]);
+  const [mesRendezVous, setMesRendezVous] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadMesRendezVous = async () => {
+      try {
+        const data = await fetchMesRendezvous();
+        if (!mounted) return;
+        setMesRendezVous(data);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || 'Impossible de charger vos rendez-vous.');
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    };
+
+    loadMesRendezVous();
+    return () => { mounted = false; };
+  }, []);
 
   const getClass = (statut) => {
     switch (statut) {
-      case "Terminé":
-        return "termine";
-      case "En cours":
-        return "encours";
-      case "En attente":
-        return "attente";
-      case "Nouveau":
-        return "nouveau";
-      case "Annulé":
-        return "annule";
+      case 'termine':
+        return 'termine';
+      case 'en cours':
+      case 'confirme':
+        return 'encours';
+      case 'en attente':
+      case 'en_attente':
+        return 'attente';
+      case 'nouveau':
+        return 'nouveau';
+      case 'annule':
+      case 'annulé':
+        return 'annule';
       default:
-        return "";
+        return 'attente';
     }
   };
+
+  const formatName = (medecin) =>
+    medecin?.name || `${medecin?.prenom || ''} ${medecin?.nom || ''}`.trim() || 'Médecin';
 
   return (
     <div className="card">
@@ -78,15 +67,30 @@ function MesRendezVous() {
         </thead>
 
         <tbody>
-          {mesRendezVous.map((rdv) => (
+          {loading && (
+            <tr>
+              <td colSpan={5} className="text-center p-4">Chargement des rendez-vous...</td>
+            </tr>
+          )}
+          {error && (
+            <tr>
+              <td colSpan={5} className="text-center p-4 text-red-600">{error}</td>
+            </tr>
+          )}
+          {!loading && !error && mesRendezVous.length === 0 && (
+            <tr>
+              <td colSpan={5} className="text-center p-4 text-gray-500">Aucun rendez-vous trouvé.</td>
+            </tr>
+          )}
+          {!loading && !error && mesRendezVous.map((rdv) => (
             <tr key={rdv.id}>
-              <td>{rdv.date}</td>
-              <td>{rdv.heure}</td>
-              <td>{rdv.medecin}</td>
-              <td>{rdv.consultation}</td>
+              <td>{rdv.date_rendezvous || rdv.date || '—'}</td>
+              <td>{rdv.heure_rendezvous || rdv.heure || '—'}</td>
+              <td>{formatName(rdv.medecin)}</td>
+              <td>{rdv.motif || rdv.consultation || '—'}</td>
               <td>
                 <span className={`badge ${getClass(rdv.statut)}`}>
-                  {rdv.statut}
+                  {rdv.statut || 'En attente'}
                 </span>
               </td>
             </tr>

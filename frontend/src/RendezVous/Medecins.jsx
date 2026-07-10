@@ -1,14 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { fetchMedecins } from '../services/rendezvousService';
+import './rendezvous.css';
 
 export default function Medecins() {
-  // Données de l'équipe médicale basées sur la maquette
-  const [medecinsList] = useState([
-    { id: "M-001", nom: "Dr. Aminata Diallo", specialite: "Médecine générale", statut: "Disponible", consultations: 12 },
-    { id: "M-002", nom: "Dr. Serigne Samb", specialite: "Consultation générale", statut: "En consultation", consultations: 8 },
-    { id: "M-003", nom: "Dr. Sira Diaw", specialite: "Suivi grossesse / Gynécologie", statut: "Disponible", consultations: 14 },
-    { id: "M-004", nom: "Dr. Khady Diene", specialite: "Pédiatrie", statut: "En pause", consultations: 9 },
-    { id: "M-005", nom: "Dr. Abdou Razakh", specialite: "Bilan de santé / Cardiologie", statut: "Disponible", consultations: 11 }
-  ]);
+  const [medecinsList, setMedecinsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadMedecins = async () => {
+      try {
+        const data = await fetchMedecins();
+        if (!mounted) return;
+        setMedecinsList(data);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || 'Impossible de charger les médecins.');
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    };
+
+    loadMedecins();
+    return () => { mounted = false; };
+  }, []);
+
+  const getStatusStyles = (medecin) => {
+    if (medecin.disponible === false || medecin.statut === 'En pause') {
+      return { label: 'Indisponible', classes: 'bg-amber-50 text-amber-700 border border-amber-200' };
+    }
+    return { label: 'Disponible', classes: 'bg-green-50 text-green-700 border border-green-200' };
+  };
+
+  const formatName = (medecin) => medecin.name || `${medecin.prenom || ''} ${medecin.nom || ''}`.trim() || 'Médecin';
 
   return (
     <div className="space-y-6">

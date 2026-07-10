@@ -1,30 +1,64 @@
-import React, { useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchPatients } from '../services/rendezvousService';
 
 export default function Patients() {
-  // Données fictives des patients au Sénégal
-  const [patientsData] = useState([
-    { id: 'P-0042', nom: 'Sira Diaw', initials: 'SD', age: '28 ans', genre: 'F', medecin: 'Dr. Diallo', telephone: '+221 77 123 45 67', statut: 'Suivi' },
-    { id: 'P-0041', nom: 'Mamadou Tall', initials: 'MT', age: '45 ans', genre: 'M', medecin: 'Dr. Diallo', telephone: '+221 76 987 65 43', statut: 'Urgence' },
-    { id: 'P-0039', nom: 'Omar Sow', initials: 'OS', age: '8 ans', genre: 'M', medecin: 'Dr. Mbaye', telephone: '+221 70 345 21 09', statut: 'Suivi' },
-    { id: 'P-0038', nom: 'Aissatou Ba', initials: 'AB', age: '62 ans', genre: 'F', medecin: 'Dr. Diallo', telephone: '+221 77 555 44 33', statut: 'Stable' },
-    { id: 'P-0035', nom: 'Ibrahima Fall', initials: 'IF', age: '34 ans', genre: 'M', medecin: 'Dr. Diallo', telephone: '+221 77 444 11 22', statut: 'Stable' },
-  ]);
-
+  const [patientsData, setPatientsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Filtrer les patients selon la recherche
-  const filteredPatients = patientsData.filter(patient =>
-    patient.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    patient.id.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    let mounted = true;
+    const loadPatients = async () => {
+      try {
+        const data = await fetchPatients();
+        if (!mounted) return;
+        setPatientsData(data);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || 'Impossible de charger les patients.');
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    };
+
+    loadPatients();
+    return () => { mounted = false; };
+  }, []);
+
+  const mappedPatients = patientsData.map((patient) => {
+    const fullName = patient.name || `${patient.prenom || ''} ${patient.nom || ''}`.trim() || 'Patient';
+    const initials = fullName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('') || 'PA';
+    const age = patient.date_naissance ? `${new Date().getFullYear() - new Date(patient.date_naissance).getFullYear()} ans` : '—';
+    return {
+      id: patient.id,
+      displayId: `P-${String(patient.id).padStart(4, '0')}`,
+      name: fullName,
+      initials,
+      age,
+      genre: patient.sexe || '—',
+      medecin: patient.medecin || '—',
+      telephone: patient.telephone || patient.email || '—',
+      statut: patient.statut || 'Nouveau',
+    };
+  });
+
+  const filteredPatients = mappedPatients.filter((patient) =>
+    patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    patient.displayId.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div style={{ padding: '24px', backgroundColor: '#f4f5f7', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
-        {/* En-tête avec statistiques */}
-        <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '16px' }}>
           <div>
             <h1 style={{ margin: '0 0 4px 0', color: '#111827', fontSize: '24px' }}>Gestion des Patients</h1>
             <p style={{ margin: '0', color: '#6b7280', fontSize: '14px' }}>Liste globale et accès aux dossiers médicaux électroniques.</p>
@@ -34,7 +68,6 @@ export default function Patients() {
           </button>
         </div>
 
-        {/* Barre de recherche */}
         <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '8px', border: '1px solid #e5e7eb', display: 'flex', gap: '16px', alignItems: 'center' }}>
           <input
             type="text"
@@ -44,11 +77,10 @@ export default function Patients() {
             style={{ flex: 1, padding: '10px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
           />
           <div style={{ fontSize: '14px', color: '#6b7280' }}>
-            {filteredPatients.length} patient(s) trouvé(s)
+            {loading ? 'Chargement...' : `${filteredPatients.length} patient(s) trouvé(s)`}
           </div>
         </div>
 
-        {/* Tableau des patients */}
         <div style={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e5e7eb', overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
             <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#374151', textTransform: 'uppercase', fontSize: '12px' }}>
@@ -62,18 +94,33 @@ export default function Patients() {
               </tr>
             </thead>
             <tbody>
-              {filteredPatients.map((patient) => (
+              {loading && (
+                <tr>
+                  <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Chargement des patients...</td>
+                </tr>
+              )}
+              {error && (
+                <tr>
+                  <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#b91c1c' }}>{error}</td>
+                </tr>
+              )}
+              {!loading && !error && filteredPatients.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>Aucun patient trouvé.</td>
+                </tr>
+              )}
+              {!loading && !error && filteredPatients.map((patient) => (
                 <tr key={patient.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#ccfbf1', color: '#115e59', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                         {patient.initials}
                       </div>
-                      <span style={{ fontWeight: 'bold', color: '#111827' }}>{patient.nom}</span>
+                      <span style={{ fontWeight: 'bold', color: '#111827' }}>{patient.name}</span>
                     </div>
                   </td>
                   <td style={{ padding: '16px' }}>
-                    <div style={{ fontFamily: 'monospace', color: '#0f766e', fontWeight: 'bold', fontSize: '12px' }}>{patient.id}</div>
+                    <div style={{ fontFamily: 'monospace', color: '#0f766e', fontWeight: 'bold', fontSize: '12px' }}>{patient.displayId}</div>
                     <div style={{ fontSize: '12px', color: '#6b7280' }}>{patient.telephone}</div>
                   </td>
                   <td style={{ padding: '16px', color: '#4b5563' }}>{patient.age} ({patient.genre})</td>
@@ -100,7 +147,6 @@ export default function Patients() {
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

@@ -1,61 +1,51 @@
-import "./rendezvous.css";
+﻿import { useEffect, useState } from 'react';
+import { fetchRendezvous } from '../services/rendezvousService';
+import './rendezvous.css';
 
 function Calendrier() {
-  const rendezVous = [
-    {
-      heure: "08:30",
-      patient: "Serigne Samb",
-      consultation: "Consultation générale - 30 min",
-      statut: "Terminé",
-      classe: "termine",
-    },
-    {
-      heure: "09:30",
-      patient: "Mamadou Tall",
-      consultation: "Consultation générale - 30 min",
-      statut: "En cours",
-      classe: "encours",
-    },
-    {
-      heure: "10:00",
-      patient: "Sira Diaw",
-      consultation: "Suivi grossesse - 45 min",
-      statut: "⏳ En attente",
-      classe: "attente",
-    },
-    {
-      heure: "11:00",
-      patient: "Khady Diene",
-      consultation: "Pédiatrie - 30 min",
-      statut: "✦ Nouveau",
-      classe: "nouveau",
-    },
-    {
-      heure: "12:00",
-      patient: "Pause déjeuner",
-      consultation: "",
-      statut: "",
-      classe: "indisponible",
-    },
-    {
-      heure: "14:00",
-      patient: "Créneau disponible",
-      consultation: "",
-      statut: "",
-      classe: "indisponible",
-    },
-    {
-      heure: "15:30",
-      patient: "Abdou Razakh",
-      consultation: "Bilan de santé - 60 min",
-      statut: "✕ Annulé",
-      classe: "annule",
-    },
-  ];
+  const [rendezVous, setRendezVous] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadRendezVous = async () => {
+      try {
+        const data = await fetchRendezvous();
+        if (!mounted) return;
+        const sorted = data
+          .slice()
+          .sort((a, b) => (a.date_rendezvous || a.date || '').localeCompare(b.date_rendezvous || b.date || ''))
+          .map((rdv) => ({
+            heure: rdv.heure_rendezvous || rdv.heure || '—',
+            patient: rdv.patient?.name || `${rdv.patient?.prenom || ''} ${rdv.patient?.nom || ''}`.trim() || 'Patient',
+            consultation: rdv.motif || 'Consultation',
+            statut: rdv.statut || 'En attente',
+            classe: rdv.statut === 'annule' ? 'annule' : rdv.statut === 'termine' ? 'termine' : rdv.statut === 'confirme' ? 'encours' : 'attente',
+          }));
+        setRendezVous(sorted);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || 'Impossible de charger l’agenda.');
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    };
+
+    loadRendezVous();
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <div className="agenda">
-      <h2>Agenda du 2 juin 2026</h2>
+      <h2>Agenda</h2>
+
+      {loading && <div className="text-center py-6 text-gray-500">Chargement de l'agenda...</div>}
+      {error && <div className="text-center py-6 text-red-600">{error}</div>}
+      {!loading && !error && rendezVous.length === 0 && (
+        <div className="text-center py-6 text-gray-500">Aucun rendez-vous programmé.</div>
+      )}
 
       {rendezVous.map((rdv, index) => (
         <div className="rdv" key={index}>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\RendezvousController;
 use App\Http\Controllers\Api\ConsultationController;
 use App\Http\Controllers\Api\OrdonnanceController;
 use App\Http\Controllers\Api\DossierMedicalController;
+use App\Http\Controllers\Api\TableauBordController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SpecialiteController;
 use App\Http\Controllers\Api\DisponibiliteController;
@@ -38,6 +39,8 @@ Route::middleware('auth:api')->group(function () {
 
     // ==================== RENDEZ-VOUS ====================
 
+    Route::get('/rendezvous/mes', [RendezvousController::class, 'mesRendezVous']);
+    Route::get('/rendezvous/medecin', [RendezvousController::class, 'rendezVousMedecin']);
     Route::apiResource('rendezvous', RendezvousController::class);
 
     // ==================== CONSULTATIONS ====================
@@ -51,6 +54,10 @@ Route::middleware('auth:api')->group(function () {
     // ==================== ORDONNANCES ====================
 
     Route::apiResource('ordonnances', OrdonnanceController::class);
+
+    // ==================== TABLEAU DE BORD ====================
+
+    Route::get('/dashboard', [TableauBordController::class, 'index']);
 
     // ==================== SPECIALITES ====================
 

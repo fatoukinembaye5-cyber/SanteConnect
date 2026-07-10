@@ -23,12 +23,23 @@ const RendezVousLayout = () => {
     <div className="page-rdv">
       <aside className="sidebar">
         <div>
-          <div className="logo">
-            <h2>SantéConnect</h2>
+          <div className="brand-section">
+            <div className="logo">
+              <h2>SantéConnect</h2>
+            </div>
+            <p className="brand-tag">Gestion claire des rendez-vous et suivi patient.</p>
           </div>
 
-          <h4>Navigation</h4>
-          <ul>
+          <div className="profile-card">
+            <div className="profile-avatar">{(user?.name || 'AD').slice(0, 2).toUpperCase()}</div>
+            <div>
+              <p className="profile-name">{user?.name || 'Administrateur'}</p>
+              <p className="profile-role">{user?.role || 'Administration'}</p>
+            </div>
+          </div>
+
+          <h4>Menu</h4>
+          <ul className="sidebar-nav">
             <li>
               <NavLink to="dashboard" className={({ isActive }) => (isActive ? 'active' : undefined)}>
                 Tableau de bord
@@ -58,7 +69,7 @@ const RendezVousLayout = () => {
         </div>
 
         <div className="bottom-menu">
-          <ul>
+          <ul className="sidebar-nav">
             <li>
               <NavLink to="statistiques" className={({ isActive }) => (isActive ? 'active' : undefined)}>
                 Statistiques
@@ -66,27 +77,9 @@ const RendezVousLayout = () => {
             </li>
           </ul>
 
-          <div style={{ borderTop: '1px solid #0d4f45', marginTop: 16, paddingTop: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, padding: '0 4px' }}>
-              <div className="avatar-chip">{(user?.name || 'AD').slice(0, 2).toUpperCase()}</div>
-              <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: 'white', lineHeight: 1.2 }}>
-                  {user?.name || 'Administrateur'}
-                </p>
-                <p style={{ fontSize: 11, color: '#7f8c8d' }}>{user?.role || 'Administration'}</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              style={{
-                width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
-                color: '#e57373', fontSize: 12, padding: '6px 4px', cursor: 'pointer',
-              }}
-            >
-              Déconnexion
-            </button>
-          </div>
+          <button type="button" onClick={handleLogout} className="logout-btn">
+            Déconnexion
+          </button>
         </div>
       </aside>
 

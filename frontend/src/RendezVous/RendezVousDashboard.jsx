@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Search, Bell, AlertTriangle, FlaskConical, PackageX } from 'lucide-react';
+import { fetchDashboardStats, fetchRendezvous } from '../services/rendezvousService';
 import './rendezvous.css';
-
-// Données de démonstration — à remplacer par un appel à l'API Laravel
-// (ex: GET /api/dashboard/admin) une fois le backend disponible.
-const PROCHAINS_RDV = [
-  { id: 1, initiales: 'SS', nom: 'Sophie Sarr', motif: 'Consultation générale', heure: '08:30', statut: 'Confirmé', couleur: 'green' },
-  { id: 2, initiales: 'SD', nom: 'Sira Diaw', motif: 'Suivi grossesse', heure: '10:00', statut: 'À confirmer', couleur: 'yellow' },
-  { id: 3, initiales: 'KD', nom: 'Khady Diène', motif: 'Consultation pédiatrique', heure: '11:00', statut: 'Nouveau patient', couleur: 'blue' },
-  { id: 4, initiales: 'AR', nom: 'Abdou Razak', motif: 'Bilan de santé', heure: '15:30', statut: 'Annulé', couleur: 'red' },
-];
 
 const ALERTES = [
   { id: 1, type: 'success', icone: FlaskConical, titre: "Résultats d'analyse disponibles", texte: 'Patient : Khadija Ba — il y a 1h' },
@@ -29,22 +21,86 @@ const RDV_SEMAINE = [
 
 const RendezVousDashboard = () => {
   const [user, setUser] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [upcoming, setUpcoming] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [notifOuvert, setNotifOuvert] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
+    const loadData = async () => {
+      try {
+        const [statsData, rdvs] = await Promise.all([fetchDashboardStats(), fetchRendezvous()]);
+        if (!mounted) return;
+        setStats(statsData);
+        const next = rdvs
+          .sort((a, b) => (a.date_rendezvous || a.date || '').localeCompare(b.date_rendezvous || b.date || ''))
+          .slice(0, 4)
+          .map((rdv) => ({
+            id: rdv.id,
+            initials: rdv.patient?.name
+              ? rdv.patient.name.split(' ').slice(0, 2).map((part) => part[0]).join('')
+              : `${rdv.patient?.prenom || ''} ${rdv.patient?.nom || ''}`.trim().split(' ').slice(0, 2).map((part) => part[0]).join(''),
+            nom: rdv.patient?.name || `${rdv.patient?.prenom || ''} ${rdv.patient?.nom || ''}`.trim() || 'Patient',
+            motif: rdv.motif || 'Consultation',
+            heure: rdv.heure_rendezvous || rdv.heure || '—',
+            statut: rdv.statut === 'confirme' ? 'Confirmé' : rdv.statut === 'annule' ? 'Annulé' : rdv.statut === 'termine' ? 'Terminé' : 'À confirmer',
+            couleur: rdv.statut === 'annule' ? 'red' : rdv.statut === 'termine' ? 'green' : rdv.statut === 'confirme' ? 'green' : 'yellow',
+          }));
+        setUpcoming(next);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err.message || 'Erreur lors du chargement du tableau de bord.');
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
+    };
+
     try {
       const stored = JSON.parse(localStorage.getItem('user') || 'null');
-      setUser(stored);
+      if (stored) setUser(stored);
     } catch {
       setUser(null);
     }
+
+    loadData();
+    return () => { mounted = false; };
   }, []);
 
-  const nomAffiche = user?.name || 'Fatou Mbaye';
+  const nomAffiche = user?.name || 'Utilisateur';
   const dateAujourdhui = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
   const maxSemaine = Math.max(...RDV_SEMAINE.map((j) => j.valeur));
+
+  const getStatCards = () => {
+    return [
+      {
+        label: "RDV AUJOURD'HUI",
+        value: stats?.mes_rendezvous ?? stats?.total_rendezvous ?? '—',
+        note: 'Rendez-vous disponibles du compte',
+      },
+      {
+        label: 'PATIENTS EN ATTENTE',
+        value: stats?.total_patients ?? stats?.patients_uniques ?? '—',
+        note: 'Cumul global ou local selon rôle',
+      },
+      {
+        label: 'CONSULTATIONS EFFECTUÉES',
+        value: stats?.total_consultations ?? stats?.mes_consultations ?? '—',
+        note: 'Informations du tableau de bord',
+      },
+      {
+        label: 'RDV ANNULÉS',
+        value: '—',
+        note: 'Donnée de disponibilité à venir',
+        danger: true,
+      },
+    ];
+  };
 
   return (
     <div>
@@ -69,7 +125,7 @@ const RendezVousDashboard = () => {
             <Bell size={17} />
             <span className="dot" />
           </button>
-          <div className="avatar-chip">AD</div>
+          <div className="avatar-chip">{nomAffiche.slice(0, 2).toUpperCase()}</div>
         </div>
       </div>
 
@@ -81,42 +137,31 @@ const RendezVousDashboard = () => {
         </div>
       )}
 
-      {/* KPI */}
       <div className="kpi-grid">
-        <div className="kpi-card">
-          <span className="kpi-label">RDV AUJOURD'HUI</span>
-          <strong>12</strong>
-          <span className="kpi-note up">↑ 2 par rapport à hier</span>
-        </div>
-        <div className="kpi-card">
-          <span className="kpi-label">PATIENTS EN ATTENTE</span>
-          <strong>4</strong>
-          <span className="kpi-note warn">Salle d'attente</span>
-        </div>
-        <div className="kpi-card">
-          <span className="kpi-label">CONSULTATIONS EFFECTUÉES</span>
-          <strong>7</strong>
-          <span className="kpi-note up">58% aujourd'hui</span>
-        </div>
-        <div className="kpi-card danger">
-          <span className="kpi-label">RDV ANNULÉS</span>
-          <strong>1</strong>
-          <span className="kpi-note danger">À recontacter</span>
-        </div>
+        {getStatCards().map((card) => (
+          <div key={card.label} className={`kpi-card ${card.danger ? 'danger' : ''}`}>
+            <span className="kpi-label">{card.label}</span>
+            <strong>{card.value}</strong>
+            <span className={`kpi-note ${card.danger ? 'danger' : card.value !== '—' ? 'up' : ''}`}>{card.note}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Contenu principal */}
       <div className="dash-grid">
-        {/* Prochains rendez-vous */}
         <div className="panel">
           <div className="panel-title">
             <h2>Prochains rendez-vous</h2>
             <span className="panel-tag">Aujourd'hui</span>
           </div>
 
-          {PROCHAINS_RDV.map((rdv) => (
+          {loading && <div className="text-center p-6 text-gray-500">Chargement des rendez-vous...</div>}
+          {error && <div className="text-center p-6 text-red-600">{error}</div>}
+          {!loading && !error && upcoming.length === 0 && (
+            <div className="text-center p-6 text-gray-500">Aucun rendez-vous à venir.</div>
+          )}
+          {!loading && !error && upcoming.map((rdv) => (
             <div key={rdv.id} className={`rdv-item ${rdv.couleur}`}>
-              <div className="avatar">{rdv.initiales}</div>
+              <div className="avatar">{rdv.initials}</div>
               <div className="rdv-info">
                 <h4>{rdv.nom}</h4>
                 <p>{rdv.motif}</p>
@@ -129,7 +174,6 @@ const RendezVousDashboard = () => {
           ))}
         </div>
 
-        {/* Alertes & RDV par jour */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div className="panel">
             <div className="panel-title">
